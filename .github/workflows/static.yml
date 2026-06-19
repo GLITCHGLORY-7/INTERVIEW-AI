@@ -1,6 +1,4 @@
-# Deploy static site to GitHub Pages
-# Adjust `branches:` and `path:` below as needed (e.g., branch: 'main' or 'master', path: ./dist / ./public)
-
+# Deploy static site to GitHub Pages (static HTML/CSS/JS — no build)
 name: Deploy static site to GitHub Pages
 
 on:
@@ -20,34 +18,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: |
-          # Use npm ci when a lockfile exists (fast & reproducible). Otherwise fall back to npm install.
-          if [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ] || [ -f yarn.lock ]; then
-            echo "Lockfile found — running npm ci"
-            npm ci
-          else
-            echo "::warning::No lockfile found. Running npm install (consider committing package-lock.json for reproducible installs)."
-            npm install
-          fi
-
-      - name: Build site
-        run: npm run build   # ensure package.json has a build script that outputs to ./build or ./dist or ./public
-
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./build   # change to ./dist or ./public if your build outputs there
+          path: ./public   # change to ./docs or ./ (repo root) if your static files are there
 
       - name: Deploy to GitHub Pages
-        id: deployment
         uses: actions/deploy-pages@v4
