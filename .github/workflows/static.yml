@@ -1,4 +1,4 @@
-# Deploy static site to GitHub Pages (static HTML/CSS/JS — no build)
+# Example keeping Node build
 name: Deploy static site to GitHub Pages
 
 on:
@@ -15,16 +15,20 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - uses: actions/setup-node@v4
         with:
-          path: ./public   # change to ./docs or ./ (repo root) if your static files are there
+          node-version: '18'
+          cache: 'npm'
 
-      - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v4
+      - run: npm ci
+      - run: npm run build   # ensure it produces ./dist or ./build or ./public
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist   # change this to your build output folder
+
+      - uses: actions/deploy-pages@v4
