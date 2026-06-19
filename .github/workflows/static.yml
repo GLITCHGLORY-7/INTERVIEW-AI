@@ -1,37 +1,26 @@
-name: Deploy static content to Pages
+# key parts only — merge into your job's steps
+- name: Checkout
+  uses: actions/checkout@v4
 
-on:
-  push:
-    branches: ["main"]
-  workflow_dispatch:
+- name: Set up Node
+  uses: actions/setup-node@v4
+  with:
+    node-version: '18'
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+- name: Install dependencies
+  run: npm ci
 
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
+- name: Build site
+  run: npm run build   # ensure package.json has a build script that outputs to ./build or ./dist
 
-jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+- name: Setup Pages
+  uses: actions/configure-pages@v5
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
+- name: Upload artifact
+  uses: actions/upload-pages-artifact@v3
+  with:
+    path: ./build   # or ./dist or ./public — point this to your build output
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: '.'
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+- name: Deploy to GitHub Pages
+  id: deployment
+  uses: actions/deploy-pages@v4
